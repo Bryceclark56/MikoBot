@@ -5,8 +5,6 @@ import discord
 from discord.ext import commands
 # imports OS module
 import os
-# imports Flask modules that keep the bot alive
-from keep_alive import keep_alive
 # impots random module for 8ball command
 import random 
 # imports aiohttp for doggo and catto command
@@ -168,7 +166,6 @@ async def info(ctx):
     embed.add_field(name="Server Region", value=f"{ctx.guild.region}")
     embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
     embed.set_thumbnail(url=f"{ctx.guild.icon}")
-
-# keeps the bot alive, see more at ./keep_alive.py
-keep_alive()
+    
+#Token hidden
 client.run(os.getenv('TOKEN'))
