@@ -22,10 +22,11 @@ Miko bot is an extremely basic bot coded in the new python re-write by Miko (@Mi
 # Error:
 MikoBot sends a message in chat whenever there is an error, whether it be insufficient permitions (on both sides of the transaction), or an uncompleted command [e.x 'miko 8ball (without any question after the 8ball)].
 
-# Future commands:
+# Future commands and features:
 A list of commands that i wish to add when i expand my python knowledge:
 - duckie 
 - warn
 - tempban
 - announce
 - mute
+- cogs
