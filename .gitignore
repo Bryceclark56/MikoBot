@@ -1,1 +1,5 @@
+# Visual Studio Code
+.vscode/
+
+# Python Virtual Environment
 env/
