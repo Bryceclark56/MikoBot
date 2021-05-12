@@ -42,7 +42,7 @@ async def userinfo(ctx, member: discord.Member = None):
   
   embed = discord.Embed(color=member.color, timestamp=ctx.message.created_at)
   embed.set_author(name=f"User Info - {member}")
-  embed.set_thumbnail(url=member.avatr_url)
+  embed.set_thumbnail(url=member.avatar_url)
   embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url)
 
   embed.add_field(name="ID:", value=member.id)
@@ -55,6 +55,8 @@ async def userinfo(ctx, member: discord.Member = None):
   embed.add_field(name="Top role:", value=member.top_role.mention)
 
   embed.add_field(name='Is this member a Bot?', value=member.bot)
+
+  await ctx.send(embed=embed)
     
 #8ball command. Chooses from given responces when asked a question.
 @client.command(aliases=['8ball'])
