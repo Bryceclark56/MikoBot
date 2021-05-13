@@ -3,3 +3,6 @@
 
 # Python Virtual Environment
 env/
+
+# Local environment variables
+.env
