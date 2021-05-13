@@ -6,7 +6,7 @@ from discord.ext import commands
 # imports OS module
 import os
 # imports Flask modules that keep the bot alive [replit.com only]
-from keep_alive import keep_alive
+ #from keep_alive import keep_alive
 # impots random module for 8ball command
 import random 
 # imports aiohttp for doggo and catto command
@@ -258,6 +258,6 @@ async def warnings(ctx, member: discord.Member=None):
         await ctx.send("This user has no warnings.")
         
 # keeps the bot alive, see more at ./keep_alive.py [replit.com only!]
-keep_alive()
+ #keep_alive()
 # Token Hidden because fuck you 
 client.run(os.getenv('TOKEN'))
