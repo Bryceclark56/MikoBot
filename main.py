@@ -42,7 +42,7 @@ async def userinfo(ctx, member: discord.Member = None):
   
   embed = discord.Embed(color=member.color, timestamp=ctx.message.created_at)
   embed.set_author(name=f"User Info - {member}")
-  embed.set_thumbnail(url=member.avatr_url)
+  embed.set_thumbnail(url=member.avatar_url)
   embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url)
 
   embed.add_field(name="ID:", value=member.id)
@@ -55,6 +55,8 @@ async def userinfo(ctx, member: discord.Member = None):
   embed.add_field(name="Top role:", value=member.top_role.mention)
 
   embed.add_field(name='Is this member a Bot?', value=member.bot)
+
+  await ctx.send(embed=embed)
     
 #8ball command. Chooses from given responces when asked a question.
 @client.command(aliases=['8ball'])
@@ -160,12 +162,14 @@ async def doggo(ctx):
 #server info
 @client.command()
 async def info(ctx):
-    embed = discord.Embed(title=f"{ctx.guild.name}", description="Example", timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
+    embed = discord.Embed(title=f"{ctx.guild.name}", timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
     embed.add_field(name="Server created at", value=f"{ctx.guild.created_at}")
     embed.add_field(name="Server Owner", value=f"{ctx.guild.owner}")
     embed.add_field(name="Server Region", value=f"{ctx.guild.region}")
     embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
-    embed.set_thumbnail(url=f"{ctx.guild.icon}")
+    embed.set_thumbnail(url=f"{ctx.guild.icon_url}")
+
+    await ctx.send(embed=embed)
     
 #Token hidden
 client.run(os.getenv('TOKEN'))
