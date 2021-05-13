@@ -17,6 +17,9 @@ Miko bot is an extremely basic bot coded in the new python re-write by Miko (@Mi
 - `kick` [kicks member]
 - `catto` [sends a random picture of a cat inside an embed]
 - `doggo` [sends a random picture of a dog inside an embed]
+- `duck` [sends a random picture of a dukc (not inside an embed)]
+- `warn` [warns member (needs reason), e.g `miko warn @test#8263 being a dummy`]
+- `warnings` [displays amount of warnings a member has, by whom they were warned, and the reason, e.g `miko warnings @test#8263`}
 - `info` [displays server creation date, server ID, server owner, and server region] 
 
 # Error:
@@ -24,8 +27,6 @@ MikoBot sends a message in chat whenever there is an error, whether it be insuff
 
 # Future Commands and Features:
 A list of commands that I wish to add when I expand my python knowledge:
-- duckie 
-- warn
 - tempban
 - announce
 - mute
