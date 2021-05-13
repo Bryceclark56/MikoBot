@@ -5,12 +5,16 @@ import discord
 from discord.ext import commands
 # imports OS module
 import os
+# imports Flask modules that keep the bot alive [replit.com only]
+from keep_alive import keep_alive
 # impots random module for 8ball command
 import random 
 # imports aiohttp for doggo and catto command
 import aiohttp
 #for dates
 import datetime
+#imports aiofiles for 'warn' command
+import aiofiles
 
 #intents to make pinging the guild owner in the 'info' command work
 intents = discord.Intents.default()
@@ -18,13 +22,34 @@ intents.members = True
 
 # Bot prefix + client 
 client = commands.Bot(command_prefix = ['miko ','m!','Miko '], intents=intents)
-
+bot = client
 #removes on-board help command so we can put or own custom help command
  # client.remove_command("help")
 
 # 'On Ready' command. Basically this confirms that the bot is active by leaving a message inside the console. 
+bot.warnings = {} # guild_id : {member_id: [count, [(admin_id, reason)]]}
 @client.event
 async def on_ready():
+  for guild in client.guilds: # creates a .txt file which stores all the ID's of the warned person, the person who warned, and warn reason
+        client.warnings[guild.id] = {}
+        async with aiofiles.open(f"{guild.id}.txt", mode="a"):
+            pass
+
+        async with aiofiles.open(f"{guild.id}.txt", mode="r") as file:
+            lines = await file.readlines()
+
+            for line in lines:
+                data = line.split(" ")
+                member_id = int(data[0])
+                admin_id = int(data[1])
+                reason = " ".join(data[2:]).strip("\n")
+
+                try:
+                    client.warnings[guild.id][member_id][0] += 1
+                    client.warnings[guild.id][member_id][1].append((admin_id, reason))
+
+                except KeyError:
+                    client.warnings[guild.id][member_id] = [1, [(admin_id, reason)]] 
   await client.change_presence(status=discord.Status.online, activity=discord.Game('the milk in my pfp is actually breast milk, #mommymilkers4life'))
   print('We have logged in as {0.user}'.format(client))
 
@@ -163,6 +188,14 @@ async def doggo(ctx):
    embed.set_image(url=dogjson['link']) # Set the embed image to the value of the 'link' key
    await ctx.send(embed=embed) # Send the embed
 
+# sends duck pic
+@client.command()
+async def duck(msg):
+ async with aiohttp.ClientSession() as req:
+    async with req.get('https://random-d.uk/api/v1/random') as duck:
+        duck = await duck.json()
+        return await msg.channel.send(duck['url'])
+        
 #server info
 @client.command()
 async def info(ctx):
@@ -174,6 +207,57 @@ async def info(ctx):
     embed.set_thumbnail(url=f"{ctx.guild.icon_url}")
 
     await ctx.send(embed=embed)
+
+#warn command, uses libraries 
+@client.event
+async def on_guild_join(guild):
+    client.warnings[guild.id] = {}
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def warn(ctx, member: discord.Member=None, *, reason=None):
+    if member is None:
+        return await ctx.send("The provided member could not be found or you forgot to provide one.")
+        
+    if reason is None:
+        return await ctx.send("Please provide a reason for warning this user.")
+
+    try:
+        first_warning = False
+        client.warnings[ctx.guild.id][member.id][0] += 1
+        client.warnings[ctx.guild.id][member.id][1].append((ctx.author.id, reason))
+
+    except KeyError:
+        first_warning = True
+        client.warnings[ctx.guild.id][member.id] = [1, [(ctx.author.id, reason)]]
+
+    count = client.warnings[ctx.guild.id][member.id][0]
+
+    async with aiofiles.open(f"{ctx.guild.id}.txt", mode="a") as file:
+        await file.write(f"{member.id} {ctx.author.id} {reason}\n")
+
+    await ctx.send(f"{member.mention} has {count} {'warning' if first_warning else 'warnings'}.")
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def warnings(ctx, member: discord.Member=None):
+    if member is None:
+        return await ctx.send("The provided member could not be found or you forgot to provide one.")
     
-#Token hidden
+    embed = discord.Embed(title=f"Displaying Warnings for {member.name}", description="", colour=discord.Colour.red())
+    try:
+        i = 1
+        for admin_id, reason in client.warnings[ctx.guild.id][member.id][1]:
+            admin = ctx.guild.get_member(admin_id)
+            embed.description += f"**Warning {i}** given by: {admin.mention} for: *'{reason}'*.\n"
+            i += 1
+
+        await ctx.send(embed=embed)
+
+    except KeyError: # no warnings
+        await ctx.send("This user has no warnings.")
+        
+# keeps the bot alive, see more at ./keep_alive.py [replit.com only!]
+keep_alive()
+# Token Hidden because fuck you 
 client.run(os.getenv('TOKEN'))
