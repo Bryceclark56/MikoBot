@@ -12,8 +12,12 @@ import aiohttp
 #for dates
 import datetime
 
+#intents to make pinging the guild owner in the 'info' work
+intents = discord.Intents.default()
+intents.members = True
+
 # Bot prefix + client 
-client = commands.Bot(command_prefix = ['miko ','m!','Miko '])
+client = commands.Bot(command_prefix = ['miko ','m!','Miko '], intents=intents)
 
 #removes on-board help command so we can put or own custom help command
  # client.remove_command("help")
