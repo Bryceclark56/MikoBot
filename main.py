@@ -12,7 +12,7 @@ import aiohttp
 #for dates
 import datetime
 
-#intents to make pinging the guild owner in the 'info' work
+#intents to make pinging the guild owner in the 'info' command work
 intents = discord.Intents.default()
 intents.members = True
 
