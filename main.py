@@ -1,30 +1,22 @@
-# Mikobot 2.0 (re-write)
-# Imports Discord.py
+## Mikobot 2.0 (re-write)
+# Imports 
 import discord 
-# imports commands from discord.ext module 
 from discord.ext import commands
-# imports OS module
 import os
-# imports Flask modules that keep the bot alive [replit.com only]
- #from keep_alive import keep_alive
-# impots random module for 8ball command
+#from keep_alive import keep_alive
 import random 
-# imports aiohttp for doggo and catto command
 import aiohttp
-#for dates
 import datetime
-#imports aiofiles for 'warn' command
 import aiofiles
 
-#intents to make pinging the guild owner in the 'info' command work
+#intents
 intents = discord.Intents.default()
 intents.members = True
 
 # Bot prefix + client 
-client = commands.Bot(command_prefix = ['miko ','m!','Miko '], intents=intents)
+client = commands.Bot(command_prefix = ['miko ','m!','Miko '], intents=intents, help_command=None)
 bot = client
-#removes on-board help command so we can put or own custom help command
- # client.remove_command("help")
+bot.sniped_messages = {}
 
 # 'On Ready' command. Basically this confirms that the bot is active by leaving a message inside the console. 
 bot.warnings = {} # guild_id : {member_id: [count, [(admin_id, reason)]]}
@@ -50,7 +42,7 @@ async def on_ready():
 
                 except KeyError:
                     client.warnings[guild.id][member_id] = [1, [(admin_id, reason)]] 
-  await client.change_presence(status=discord.Status.online, activity=discord.Game('the milk in my pfp is actually breast milk, #mommymilkers4life'))
+  await client.change_presence(status=discord.Status.online, activity=discord.Game('#mommymilkers4life'))
   print('We have logged in as {0.user}'.format(client))
 
 # Adds 2 numbers together 
@@ -58,10 +50,58 @@ async def on_ready():
 async def add(ctx, left: int, right: int):
     await ctx.send(left + right)
 
+# Subtracts 2 numbers together 
+@client.command()
+async def sub(ctx, left: int, right: int):
+    await ctx.send(left - right)
+
+# Multiplies 2 numbers together 
+@client.command()
+async def multiply(ctx, left: int, right: int):
+    await ctx.send(left * right)
+
+# divides 2 numbers together 
+@client.command()
+async def divide(ctx, left: int, right: int):
+    await ctx.send(left / right)
+
 # Ping command
 @client.command()
 async def ping(ctx):
   await ctx.send(f'Pong! We are running at around {round(client.latency * 1000)} ms')
+
+# dm command
+@bot.command()
+@commands.has_permissions(administrator = True)
+async def dm(ctx, user: discord.User, *, message=None):
+    message = message or "This Message is sent via DM"
+    await user.send(message)
+
+#change nickname
+@client.command(pass_context=True)
+async def nick(ctx, member: discord.Member, nick):
+    await member.edit(nick=nick)
+    await ctx.send(f'Nickname was changed for {member.mention} ')
+
+#snipe command
+@bot.event
+async def on_message_delete(message):
+    bot.sniped_messages[message.guild.id] = (message.content, message.author, message.channel.name, message.created_at)
+
+@bot.command()
+async def snipe(ctx):
+    try:
+        contents, author, channel_name, time = bot.sniped_messages[ctx.guild.id]
+        
+    except:
+        await ctx.channel.send("Couldn't find a message to snipe!")
+        return
+
+    embed = discord.Embed(description=contents, color=discord.Color.purple(), timestamp=time)
+    embed.set_author(name=f"{author.name}#{author.discriminator}", icon_url=author.avatar_url)
+    embed.set_footer(text=f"Deleted in : #{channel_name}")
+
+    await ctx.channel.send(embed=embed)
 
 # userinfo command. Displays ID, name, account creation date, account join date, lists and displays roles, displays top role, and verifies if the user is a bot or not
 @client.command()
@@ -82,8 +122,6 @@ async def userinfo(ctx, member: discord.Member = None):
 
   embed.add_field(name=f"Roles ({len(roles)})", value= " ".join([role.mention for role in roles]))
   embed.add_field(name="Top role:", value=member.top_role.mention)
-
-  embed.add_field(name='Is this member a Bot?', value=member.bot)
 
   await ctx.send(embed=embed)
     
@@ -112,7 +150,7 @@ async def _8ball(ctx, *, question):
   discord.Embed(title='Very doubtful.')
     ]
   responses = random.choice(responses)
-  await ctx.send(content=f'My Answer is: ' , embed=responses)
+  await ctx.send(embed=responses)
 
 # Clear command. Removes a set amount of messages (set by the command executer)
 #5 is the default ammount of messages cleared
@@ -129,34 +167,23 @@ async def on_command_error(ctx, error):
         await ctx.send("You dont have all the requirements :angry:")
 
 #The below code bans a member.
-@client.command()
-@commands.has_permissions(ban_members = True)
-async def ban (ctx, member:discord.User=None, reason =None):
-    if member == None or member == ctx.message.author:
-        await ctx.channel.send("You cannot ban yourself")
-        return
-    if reason == None:
-        reason = "For being a jerk!"
-    message = f"You have been banned from {ctx.guild.name} for {reason}"
-    await member.send(message)
-    await ctx.guild.ban(member, reason=reason)
-    await ctx.channel.send(f"{member} is banned!")
+@bot.command()
+@commands.has_permissions(ban_members=True)
+async def ban(ctx, member: discord.Member, *, reason=None):
+    await member.ban(reason=reason)
+    await ctx.send(f"{member} was banned!")
 
 #The below code unbans a member.
 @client.command()
-@commands.has_permissions(administrator = True)
-async def unban(ctx, *, member):
-    banned_users = await ctx.guild.bans()
-    member_name, member_discriminator = member.split("#")
-
-    for ban_entry in banned_users:
-        user = ban_entry.user
-
-        if (user.name, user.discriminator) == (member_name, member_discriminator):
-            await ctx.guild.unban(user)
-            await ctx.send(f'Unbanned {user.mention}')
-            return
-
+@commands.has_permissions(administrator=True)
+async def unban(ctx, *, member_id: int):
+		await ctx.message.delete()
+		try:
+			await ctx.guild.unban(discord.Object(id=member_id))
+			await ctx.send(f"<@{member_id}> was Unbanned!")
+		except Exception as e:
+			await ctx.send(f'```{type(e).__name__} - {e}```')
+    
 #The code below kicks a member
 @client.command()
 @commands.has_permissions(kick_members=True)
@@ -195,18 +222,52 @@ async def duck(msg):
     async with req.get('https://random-d.uk/api/v1/random') as duck:
         duck = await duck.json()
         return await msg.channel.send(duck['url'])
+
+@client.command()
+async def catboy(ctx):
+   async with aiohttp.ClientSession() as session:
+      request3 = await session.get('https://api.catboys.com/img') # Make a request
+      cbjson = await request3.json() # Convert it to a JSON dictionary
+   embed = discord.Embed(title="Catboy ;) nya", color=discord.Color.purple()) # Create embed
+   embed.set_image(url=cbjson['url']) # Set the embed image to the value of the 'url' key
+   await ctx.send(embed=embed) # Send the embed
+
+@client.command()
+async def catgirl(ctx):
+   async with aiohttp.ClientSession() as session:
+      request4 = await session.get('https://neko-love.xyz/api/v1/neko') # Make a request
+      cgjson = await request4.json() # Convert it to a JSON dictionary
+   embed = discord.Embed(title="Catgirl ;) nya", color=discord.Color.purple()) # Create embed
+   embed.set_image(url=cgjson['url']) # Set the embed image to the value of the 'url' key
+   await ctx.send(embed=embed) # Send the embed
+
+# sends random meme inside an embed
+@client.command(pass_context=True)
+async def meme(ctx):
+    embed = discord.Embed(title="Haha funni",color=discord.Color.purple() )
+
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get('https://www.reddit.com/r/dankmemes/new.json?sort=hot') as r:
+            res = await r.json()
+            embed.set_image(url=res['data']['children'] [random.randint(0, 25)]['data']['url'])
+            await ctx.send(embed=embed)
         
 #server info
 @client.command()
-async def info(ctx):
+async def serverinfo(ctx):
     embed = discord.Embed(title=f"{ctx.guild.name}", timestamp=datetime.datetime.utcnow(), color=discord.Color.blue())
     embed.add_field(name="Server created at", value=f"{ctx.guild.created_at}")
     embed.add_field(name="Server Owner", value=f"{ctx.guild.owner}")
     embed.add_field(name="Server Region", value=f"{ctx.guild.region}")
     embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
+    embed.add_field(name="Member Count", value=f"{ctx.guild.member_count}")
     embed.set_thumbnail(url=f"{ctx.guild.icon_url}")
 
     await ctx.send(embed=embed)
+
+@bot.command()
+async def echo(ctx, *, content:str):
+    await ctx.send(content)
 
 #warn command, uses libraries 
 @client.event
@@ -256,8 +317,49 @@ async def warnings(ctx, member: discord.Member=None):
 
     except KeyError: # no warnings
         await ctx.send("This user has no warnings.")
-        
+
+#mute command
+@bot.command(description="Mutes the specified user.")
+@commands.has_permissions(manage_messages=True)
+async def mute(ctx, member: discord.Member, *, reason=None):
+    guild = ctx.guild
+    mutedRole = discord.utils.get(guild.roles, name="Muted")
+
+    if not mutedRole:
+        mutedRole = await guild.create_role(name="Muted")
+
+        for channel in guild.channels:
+            await channel.set_permissions(mutedRole, speak=False, send_messages=False, read_message_history=True, read_messages=False)
+
+    await member.add_roles(mutedRole, reason=reason)
+    await ctx.send(f"Muted {member.mention} for reason {reason}")
+    await member.send(f"You were muted in the server {guild.name} for {reason}")
+#unmute command
+@bot.command(description="Unmutes a specified user.")
+@commands.has_permissions(manage_messages=True)
+async def unmute(ctx, member: discord.Member):
+    mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
+
+    await member.remove_roles(mutedRole)
+    await ctx.send(f"Unmuted {member.mention}")
+    await member.send(f"You were unmuted in the server {ctx.guild.name}")
+
+# cogs
+# load cogs
+@client.command()
+async def load(ctx, extension):
+    client.load_extension(f"cogs.{extension}")
+# unload cogs
+@client.command()
+async def unload(ctx, extension):
+    client.unload_extention(f'cogs.{extension}')
+
+for filename in os.listdir('./cogs'):
+    if filename.endswith('.py'):
+        client.load_extension(f'cogs.{filename[:-3]}')
+
+
 # keeps the bot alive, see more at ./keep_alive.py [replit.com only!]
  #keep_alive()
-# Token Hidden because fuck you 
+# Token Hidden  
 client.run(os.getenv('TOKEN'))
