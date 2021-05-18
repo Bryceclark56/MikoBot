@@ -31,6 +31,7 @@ Miko bot is an extremely basic bot coded in the new python re-write by Miko (@Mi
 - `dm` [dm's mentioned user with a custom message]
 - `snipe` [sends an embed containing the last deleted message]
 - `echo` [repeats what the author says e.g `miko echo test`]
+- `help` [displays new help command]
 
 # Error:
 MikoBot sends a message in chat whenever there is an error, whether it be insufficient permissions (on both sides of the transaction), or an incomplete command [e.g., `miko 8ball` (without any question after the 8ball)].
