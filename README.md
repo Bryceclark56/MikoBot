@@ -24,7 +24,7 @@ Miko bot is an extremely basic bot coded in the new python re-write by Miko (@Mi
 - `mute` [mutes a person]
 - `unmute` [unmutes a person]
 - `meme` [sends a random meme]
-- '`catboy` [sends a random pciture of a catboy (pictures might be repetitive because of limited API)]
+- `catboy` [sends a random pciture of a catboy (pictures might be repetitive because of limited API)]
 - `catgirl` [sends random picture of a catgirl]
 - `sub/multiply/divide` [subracts/multiplies/divides two numbers]
 - `nick` [changes users nickname e.g `miko nick @Test Dummy`
