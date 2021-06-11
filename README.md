@@ -7,7 +7,6 @@ Miko bot is an extremely basic bot coded in the new python re-write by Miko (@Mi
 - `Miko`
 
 # Commands: 
-- `add` [adds two numbers together. e.g., `miko add 1 2`]
 - `ping` [displays the bot's ping in ms]
 - `userinfo` [displays a member's ID, name, account creation date, account join date, lists and displays roles, displays top role, and verifies if the user is a bot or not. e.g., `miko userinfo` or `miko userinfo @DummyAccount#1234`] 
 - `8ball` [chooses from a list of responses varying from positive to negative, e.g., `miko 8ball will this bot ever be finished?`]
@@ -26,17 +25,16 @@ Miko bot is an extremely basic bot coded in the new python re-write by Miko (@Mi
 - `meme` [sends a random meme]
 - `catboy` [sends a random pciture of a catboy (pictures might be repetitive because of limited API)]
 - `catgirl` [sends random picture of a catgirl]
-- `sub/multiply/divide` [subracts/multiplies/divides two numbers]
 - `nick` [changes users nickname e.g `miko nick @Test Dummy`
 - `dm` [dm's mentioned user with a custom message]
-- `snipe` [sends an embed containing the last deleted message]
 - `echo` [repeats what the author says e.g `miko echo test`]
 - `help` [displays new help command]
+- AND MORE!
 
 # Error:
 MikoBot sends a message in chat whenever there is an error, whether it be insufficient permissions (on both sides of the transaction), or an incomplete command [e.g., `miko 8ball` (without any question after the 8ball)].
 
 # Future Commands and Features:
 A list of commands that I wish to add when I expand my python knowledge:
-- tempban
-- announce
+- create_role (crole)
+- delete_role (drole)
