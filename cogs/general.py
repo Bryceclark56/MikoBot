@@ -271,7 +271,7 @@ class General(commands.Cog, name="General"):
         except Exception as e:
             await ctx.send(e)
 
-
+# test
 def setup(bot):
     bot.add_cog(General(bot))
     
